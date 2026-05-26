@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🍃 Calculadora de Emissão de CO2</title>
+  <meta name="description" content="Simule o impacto ambiental de viagens e estime emissão de CO2 para escolhas mais sustentáveis.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <h1 class="header__title">🍃 Calculadora de Emissão de CO2</h1>
+      <p class="header__subtitle">Estime a emissão de carbono da sua viagem e escolha opções mais sustentáveis.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="calculator">
+      <form id="calculator-form" class="calculator__form" novalidate>
+        <div class="calculator__field">
+          <label class="calculator__label" for="origin">Origem</label>
+          <input id="origin" name="origin" list="cities-list" class="calculator__input" placeholder="Escolha ou digite a cidade de origem">
+        </div>
+
+        <div class="calculator__field">
+          <label class="calculator__label" for="destination">Destino</label>
+          <input id="destination" name="destination" list="cities-list" class="calculator__input" placeholder="Escolha ou digite a cidade de destino">
+        </div>
+
+        <datalist id="cities-list">
+          <!-- opções preenchidas por CONFIG.populateDatalist() -->
+        </datalist>
+
+        <div class="calculator__field">
+          <label class="calculator__label" for="distance">Distância (km)</label>
+          <input id="distance" name="distance" type="number" class="calculator__input" readonly>
+          <div id="distance-helper" class="calculator__helper">A distância será preenchida automaticamente</div>
+          <label class="calculator__checkbox"><input id="distance-manual" type="checkbox"> Inserir distância manualmente</label>
+        </div>
+
+        <fieldset class="calculator__field transport" aria-label="Modo de transporte">
+          <legend class="calculator__label">Modo de transporte</legend>
+          <div class="transport__grid">
+            <input type="radio" id="mode-bicycle" name="transport-mode" value="bicycle">
+            <label class="transport__option" for="mode-bicycle">🚲<span>Bicicleta</span></label>
+
+            <input type="radio" id="mode-car" name="transport-mode" value="car" checked>
+            <label class="transport__option" for="mode-car">🚗<span>Carro</span></label>
+
+            <input type="radio" id="mode-bus" name="transport-mode" value="bus">
+            <label class="transport__option" for="mode-bus">🚌<span>Ônibus</span></label>
+
+            <input type="radio" id="mode-truck" name="transport-mode" value="truck">
+            <label class="transport__option" for="mode-truck">🚚<span>Caminhão</span></label>
+          </div>
+        </fieldset>
+
+        <div class="calculator__field">
+          <button type="submit" class="button button--primary">Calcular Emissão de CO2</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="results" class="hidden">
+      <div id="results-content"></div>
+    </section>
+
+    <section id="comparison" class="hidden">
+      <div id="comparison-content"></div>
+    </section>
+
+    <section id="carbon-credits" class="hidden">
+      <div id="carbon-credits-content"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">Projeto desenvolvido durante o Bootcamp da CI&T - Do Prompt ao Agente em parceria com a DIO.</div>
+  </footer>
+
+  <script src="js/routes-data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
