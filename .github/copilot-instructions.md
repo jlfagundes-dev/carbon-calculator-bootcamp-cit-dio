@@ -244,6 +244,43 @@ CONFIG.JS - JS / CONFIG:
   - Observação final: tudo deve estar dentro de um único objeto global `CONFIG` para facilitar uso em outras partes da aplicação.
 
 
+CALCULATOR.JS - JS / CALCULADORA:
+  - Criar `js/calculator.js` com um objeto global chamado `Calculator` contendo os seguintes métodos:
+
+  - `calculateEmission: function(distanceKm, transportMode)`
+    - Obter o fator de emissão em `CONFIG.EMISSION_FACTORS[transportMode]`.
+    - Calcular a emissão: `emission = distanceKm * factor`.
+    - Retornar o resultado arredondado para 2 casas decimais.
+
+  - `calculateAllModes: function(distanceKm)`
+    - Criar um array para armazenar resultados.
+    - Para cada modo presente em `CONFIG.EMISSION_FACTORS`:
+      - Calcular a emissão para esse modo.
+      - Usar a emissão de `car` como baseline para comparação.
+      - Calcular a porcentagem vs carro: `(emission / carEmission) * 100`.
+      - Inserir no array um objeto `{ mode: 'car', emission: 12.5, percentageVsCar: 100 }`.
+    - Ordenar o array por `emission` (do menor para o maior).
+    - Retornar o array.
+
+  - `calculateSavings: function(emission, baselineEmission)`
+    - Calcular `savedKg = baselineEmission - emission`.
+    - Calcular `percentage = (savedKg / baselineEmission) * 100` (tratar divisão por zero quando aplicável).
+    - Retornar um objeto com `savedKg` e `percentage`, arredondados para 2 casas decimais.
+
+  - `calculateCarbonCredits: function(emissionKg)`
+    - Calcular créditos: `credits = emissionKg / CONFIG.CARBON_CREDIT.KG_PER_CREDIT`.
+    - Retornar o valor de créditos arredondado para 4 casas decimais.
+
+  - `estimateCreditPrice: function(credits)`
+    - Calcular mínimo: `min = credits * CONFIG.CARBON_CREDIT.PRICE_MIN_BRL`.
+    - Calcular máximo: `max = credits * CONFIG.CARBON_CREDIT.PRICE_MAX_BRL`.
+    - Calcular média: `average = (min + max) / 2`.
+    - Retornar um objeto `{ min, max, average }` com valores arredondados para 2 casas decimais.
+
+  - Incluir comentários explicando cada cálculo (fórmula e unidades).
+  - Observação: o arquivo deve definir apenas uma variável global: `Calculator`.
+
+
 
 
 
