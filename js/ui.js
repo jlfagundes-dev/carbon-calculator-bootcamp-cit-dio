@@ -34,11 +34,15 @@ var UI = (function () {
     var html = '';
     html += '<div class="results__card">';
     html += '<h3 class="results__title">' + (data.origin || '') + ' → ' + (data.destination || '') + '</h3>';
-    html += '<p class="results__distance">Distância: ' + formatNumber(data.distance, 0) + ' km</p>';
-    html += '<p class="results__emission">Emissão: ' + formatNumber(data.emission, 2) + ' kg CO2</p>';
-    html += '<p class="results__transport">Modo: ' + (modeMeta.icon || '') + ' ' + (modeMeta.label || data.mode) + '</p>';
-    if (data.savings && data.mode === 'car' && data.savings.savedKg > 0) {
-      html += '<p class="results__savings">Economia: ' + formatNumber(data.savings.savedKg, 2) + ' kg (' + formatNumber(data.savings.percentage, 2) + '%)</p>';
+    html += '<div class="results__value">' + formatNumber(data.emission, 2) + ' kg CO2</div>';
+    html += '<p class="results__distance muted">Distância: ' + formatNumber(data.distance, 0) + ' km</p>';
+    html += '<p class="results__transport muted">' + (modeMeta.icon || '') + ' ' + (modeMeta.label || data.mode) + '</p>';
+    if (data.savings && data.savings.savedKg > 0) {
+      html += '<div class="results__savings">';
+      html += '<div class="icon">⚡</div>';
+      html += '<div class="content"><div class="kicker">Economia vs Carro</div>';
+      html += '<div>' + formatNumber(data.savings.savedKg, 2) + ' kg <span class="muted">(' + formatNumber(data.savings.percentage, 2) + '%)</span></div>';
+      html += '</div></div>';
     }
     html += '</div>';
     return html;
@@ -50,8 +54,12 @@ var UI = (function () {
     modesArray.forEach(function (m) {
       var selectedClass = m.mode === selectedMode ? ' comparison__item--selected' : '';
       html += '<div class="comparison__item' + selectedClass + '">';
-      html += '<div class="comparison__bar" style="width: ' + Math.min(100, m.percentageVsCar) + '%; background: #10b981; height: 12px; border-radius: 6px;"></div>';
-      html += '<div class="comparison__meta">' + (CONFIG.TRANSPORT_MODES[m.mode]?.icon || '') + ' ' + (CONFIG.TRANSPORT_MODES[m.mode]?.label || m.mode) + ' — ' + formatNumber(m.emission, 2) + ' kg</div>';
+      html += '<div class="comparison__header">';
+      html += '<div class="comparison__meta">' + (CONFIG.TRANSPORT_MODES[m.mode]?.icon || '') + ' ' + (CONFIG.TRANSPORT_MODES[m.mode]?.label || m.mode) + '</div>';
+      html += '<div class="comparison__percentage">' + formatNumber(m.percentageVsCar, 2) + '%</div>';
+      html += '</div>';
+      html += '<div class="comparison__bar-container"><div class="comparison__bar" style="width: ' + Math.min(100, m.percentageVsCar) + '%; background: ' + (CONFIG.TRANSPORT_MODES[m.mode]?.color || 'var(--primary)') + ';"></div></div>';
+      html += '<div class="comparison__meta muted">' + formatNumber(m.emission, 2) + ' kg</div>';
       html += '</div>';
     });
     html += '</div>';
@@ -60,17 +68,28 @@ var UI = (function () {
 
   // Renderiza créditos de carbono
   function renderCarbonCredits(creditsData) {
-    var html = '<div class="credits__grid">';
-    html += '<div class="credits__card">';
-    html += '<h4>' + formatNumber(creditsData.credits, 4) + ' créditos</h4>';
-    html += '<p>1 crédito = ' + (CONFIG.CARBON_CREDIT.KG_PER_CREDIT || 1000) + ' kg CO2</p>';
+    var html = '<div class="carbon-credits__grid">';
+    html += '<div class="carbon-credits__card">';
+    html += '<div class="carbon-credits__label">CRÉDITOS NECESSÁRIOS</div>';
+    html += '<div class="carbon-credits__value">' + formatNumber(creditsData.credits, 4) + '</div>';
+    html += '<div class="muted">1 crédito = ' + (CONFIG.CARBON_CREDIT.KG_PER_CREDIT || 1000) + ' kg CO2</div>';
     html += '</div>';
-    html += '<div class="credits__card">';
-    html += '<h4>Preço estimado</h4>';
-    html += '<p>Min: ' + formatCurrency(creditsData.price.min) + '</p>';
-    html += '<p>Max: ' + formatCurrency(creditsData.price.max) + '</p>';
-    html += '<p>Média: ' + formatCurrency(creditsData.price.average) + '</p>';
+    html += '<div class="carbon-credits__card">';
+    html += '<div class="carbon-credits__label">CUSTO ESTIMADO</div>';
+    html += '<div class="carbon-credits__value">' + formatCurrency(creditsData.price.average) + '</div>';
+    html += '<div class="muted">Variação: ' + formatCurrency(creditsData.price.min) + ' - ' + formatCurrency(creditsData.price.max) + '</div>';
     html += '</div>';
+    html += '</div>';
+
+    // informative dashed box
+    html += '<div class="carbon-credits__info">';
+    html += '<h4>O que são Créditos de Carbono?</h4>';
+    html += '<p>Créditos de carbono são certificados que representam a redução de uma tonelada de CO₂ da atmosfera. Ao comprar créditos, você compensa suas emissões financando projetos de preservação ambiental, reflorestamento e energia renovável.</p>';
+    html += '</div>';
+
+    // compensate button (link placeholder)
+    html += '<div class="carbon-credits__actions">';
+    html += '<a href="#" id="compensate-link" class="button button--primary button--large">Compensar Emissões</a>';
     html += '</div>';
     return html;
   }
