@@ -281,6 +281,120 @@ CALCULATOR.JS - JS / CALCULADORA:
   - Observação: o arquivo deve definir apenas uma variável global: `Calculator`.
 
 
+UI.JS - JS / INTERFACE (UI):
+  - Criar `js/ui.js` com um objeto global chamado `UI` contendo métodos utilitários, de renderização e helpers de carregamento.
+
+  UTILITY METHODS:
+  - `formatNumber: function(number, decimals)`
+    - Usar `toFixed()` para casas decimais.
+    - Adicionar separadores de milhares usando regex ou `toLocaleString('pt-BR')`.
+    - Retornar a string formatada.
+
+  - `formatCurrency: function(value)`
+    - Formatar em R$ com locale pt-BR.
+    - Retornar string no formato `R$ 1.234,56`.
+
+  - `showElement: function(elementId)`
+    - Obter elemento por ID.
+    - Remover a classe `hidden`.
+
+  - `hideElement: function(elementId)`
+    - Obter elemento por ID.
+    - Adicionar a classe `hidden`.
+
+  - `scrollToElement: function(elementId)`
+    - Obter elemento por ID.
+    - Usar `scrollIntoView({ behavior: 'smooth' })` para rolagem suave.
+
+  RENDERING METHODS:
+  - `renderResults: function(data)`
+    - `data` contém: origin, destination, distance, emission, mode, savings
+    - Obter metadados de `CONFIG.TRANSPORT_MODES` para o modo selecionado.
+    - Criar uma string HTML com template literals contendo:
+      - Cartão de rota mostrando `origin → destination`.
+      - Cartão de distância mostrando valor em km.
+      - Cartão de emissão mostrando CO2 em kg (usar `formatNumber`/`formatCurrency` conforme apropriado).
+      - Cartão de transporte mostrando ícone e label.
+      - Se o modo for `car` e houver savings: adicionar cartão mostrando `kg` economizados e `percentage`.
+    - Retornar a string HTML completa; use `results__card` (BEM) para cada cartão.
+    - Incluir comentários claros explicando a estrutura HTML gerada.
+
+  - `renderComparison: function(modesArray, selectedMode)`
+    - `modesArray` vem de `Calculator.calculateAllModes(distanceKm)`.
+    - Para cada modo, criar item com:
+      - Barra de cor mostrando faixa (ex.: verde para baixo, vermelho para alto)
+      - Valores de emissão e porcentagem vs `car`.
+    - Destacar `selectedMode` com classe `comparison__item--selected`.
+    - Retornar string HTML completa.
+
+  - `renderCarbonCredits: function(creditsData)`
+    - `creditsData` contém `{ credits, price: { min, max, average } }`.
+    - Criar HTML com grid de 2 cartões:
+      - Cartão 1: créditos necessários (número grande) e helper text "1 crédito = 1000 kg CO2".
+      - Cartão 2: preço estimado (min/max/average) em R$.
+    - Incluir box explicativo sobre o que são créditos de carbono e botão "Compensar Emissões" (pode ser não funcional).
+    - Usar `formatNumber` e `formatCurrency` para valores.
+
+  INTERAÇÃO / HELPERS:
+  - `showLoading: function(buttonElement)`
+    - Salvar texto original em `buttonElement.dataset.originalText`.
+    - Desabilitar o botão (`disabled = true`).
+    - Trocar `innerHTML` para mostrar spinner e texto "Calculando..." (ex.: `<span class="spinner"></span> Calculando...`).
+
+  - `hideLoading: function(buttonElement)`
+    - Habilitar o botão.
+    - Restaurar texto original a partir de `buttonElement.dataset.originalText`.
+
+  Observação: todos os métodos devem fazer parte do objeto global `UI`. Use comentários claros explicando a estrutura HTML esperada (classes BEM, elementos internos) para que o desenvolvedor saiba onde injetar o conteúdo.
+
+APP.JS - INICIALIZAÇÃO E MANUSEIO DE EVENTOS:
+  - Criar `js/app.js` com inicialização e handlers de eventos. Usar IIFE ou `DOMContentLoaded`.
+
+  INICIALIZAÇÃO (quando o DOM estiver pronto):
+  1. Chamar `CONFIG.populateDatalist()` para preencher o autocomplete de cidades.
+  2. Chamar `CONFIG.setupDistanceAutofill()` para habilitar autofill de distância.
+  3. Obter o formulário por id `calculator-form`.
+  4. Adicionar listener de `submit` ao formulário que chama o handler de envio.
+  5. Log no console: "Calculadora inicializada!" (ou mensagem similar) para depuração.
+
+  FORM SUBMIT HANDLER (quando o formulário for submetido):
+  1. Prevenir o envio padrão (`event.preventDefault()`).
+  2. Ler todos os valores do formulário e normalizar:
+    - origin: `trim()`
+    - destination: `trim()`
+    - distance: `parseFloat()` (do input `distance`)
+    - transportMode: obter o valor do `radio` marcado
+  3. Validar inputs:
+    - Verificar se origin, destination e distance estão preenchidos
+    - Verificar se `distance` > 0
+    - Se falhar, exibir alerta amigável e retornar
+  4. Obter referência ao botão de submit
+  5. Chamar `UI.showLoading(button)` para mostrar estado de carregamento
+  6. Esconder seções de resultados anteriores usando `UI.hideElement()` para os containers relevantes
+  7. Usar `setTimeout` com 1500ms para simular processamento assíncrono (opcional) e dentro dele:
+    - Envolver em `try/catch` para tratamento de erros
+    - No `try`:
+      - Calcular emissão para o modo selecionado: `Calculator.calculateEmission(distance, transportMode)`
+      - Calcular emissão do carro como baseline
+      - Calcular savings: `Calculator.calculateSavings(emission, carEmission)`
+      - Calcular comparação de todos os modos: `Calculator.calculateAllModes(distance)`
+      - Calcular créditos e preço: `Calculator.calculateCarbonCredits(emission)` e `Calculator.estimateCreditPrice(credits)`
+      - Construir objetos de dados necessários para renderização (`resultsData`, `comparisonData`, `creditsData`)
+      - Chamar `UI.renderResults(resultsData)` e inserir o HTML em `#results-content`
+      - Chamar `UI.renderComparison(comparisonData, transportMode)` e inserir o HTML em `#comparison-content`
+      - Chamar `UI.renderCarbonCredits(creditsData)` e inserir o HTML em `#carbon-credits-content`
+      - Mostrar todas as seções com `UI.showElement('results')`, `UI.showElement('comparison')`, `UI.showElement('carbon-credits')`
+      - Rolagem até `results` com `UI.scrollToElement('results')`
+      - Chamar `UI.hideLoading(button)` para restaurar o botão
+    - No `catch`:
+      - Logar o erro no console
+      - Exibir alerta amigável ao usuário
+      - Chamar `UI.hideLoading(button)` para restaurar o botão
+
+  - Adicionar comentários explicando cada passo e usar nomes de variáveis descritivos.
+  - Manter o código limpo e legível; todos os métodos de UI/Calculator/CONFIG devem ser usados e não repetir lógica.
+
+
 
 
 
