@@ -89,7 +89,7 @@ var UI = (function () {
 
     // compensate button (link placeholder)
     html += '<div class="carbon-credits__actions">';
-    html += '<a href="#" id="compensate-link" class="button button--primary button--large">Compensar Emissões</a>';
+    html += '<a href="https://www.gov.br/fazenda/pt-br/composicao/orgaos/mercado-de-carbono/mercado-de-carbono" id="compensate-link" class="button button--primary button--large" target="_blank" rel="noopener noreferrer">Compensar Emissões</a>';
     html += '</div>';
     return html;
   }
